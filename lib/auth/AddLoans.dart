@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:mini_projet/models/member.dart';
 
-import 'db.dart';
-
-class AddMember extends StatefulWidget {
-  const AddMember({ Key? key }) : super(key: key);
+class AddLoans extends StatefulWidget {
+  const AddLoans({ Key? key }) : super(key: key);
 
   @override
-  _AddMemberState createState() => _AddMemberState();
+  _AddLoansState createState() => _AddLoansState();
 }
 final box = GetStorage();
-final fnameInput = TextEditingController();
-final lnameInput = TextEditingController();
-final num1Input = TextEditingController();
-final num2Input = TextEditingController();
-
-class _AddMemberState extends State<AddMember> {
+final nameMInput = TextEditingController();
+final nameCInput = TextEditingController();
+final datEmpInput = TextEditingController();
+final datRetInput = TextEditingController();
+class _AddLoansState extends State<AddLoans> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Add Member"),
+        title: Text("Add Loans"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -40,44 +36,44 @@ class _AddMemberState extends State<AddMember> {
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
-                controller: fnameInput,
+                controller: nameMInput,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'FirstName',
-                    hintText: 'Enter the Firstname'),
+                    labelText: 'Name Member',
+                    hintText: 'Enter your Firstname'),
               ),
             ),
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
-                controller: lnameInput,
+                controller: nameCInput,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'LastName',
-                    hintText: 'Enter the Lastname'),
+                    labelText: 'Name Component',
+                    hintText: 'Enter the name of component'),
               ),
             ),
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
-                controller:num1Input,
+                controller:datEmpInput,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Phone number 1',
-                    hintText: 'Enter the first number'),
+                    labelText: 'Date emprunt',
+                    hintText: 'Enter the date of emprunt'),
               ),
             ),
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
-                controller: num2Input,
+                controller: datRetInput,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Phone number 2',
-                    hintText: 'Enter the second number'),
+                    labelText: 'date Return',
+                    hintText: 'Enter the date of return'),
               ),
             ),
             Padding(
@@ -85,7 +81,7 @@ class _AddMemberState extends State<AddMember> {
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               child:  ElevatedButton(
                 onPressed: () {
-                      MyDatabase.db.newMember(Member.withoutId(fnameInput.text, lnameInput.text, int.parse(num1Input.text), int.parse(num2Input.text)));
+                      //MyDatabase.db.newLoans(Loans.withoutId(nameMInput.text, nameCInput.text, datEmpInput.text, datRetInput.text));
                 },
                 child: Text(
                   "Add",

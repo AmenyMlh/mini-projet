@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mini_projet/auth/AddFamily.dart';
+import 'package:mini_projet/auth/AddMember.dart';
 
 import 'auth/LoginPage.dart';
 
@@ -60,7 +61,7 @@ class _HomePageState extends State<HomePage> {
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: ElevatedButton(
-                onPressed: () { 
+                onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => AddMember()));
 
                  },
                 child: Text('Add Member'),

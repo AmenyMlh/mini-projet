@@ -1,10 +1,11 @@
 class Component{
-  int id;
+  int id=-1;
   String name;
   String family;
   int quantity;
   DateTime date;
   Component(this.id,this.name,this.family,this.quantity,this.date);
+  Component.withoutId(this.name,this.family,this.quantity,this.date);
 Map<String, Object?> toMap() => {
     'id':id,
     'name' : name,

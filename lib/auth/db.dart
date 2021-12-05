@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:mini_projet/models/admin.dart';
+import 'package:mini_projet/models/component.dart';
 import 'package:mini_projet/models/family.dart';
+import 'package:mini_projet/models/loans.dart';
 import 'package:mini_projet/models/member.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -62,7 +64,24 @@ class MyDatabase {
       "first_name TEXT NOT NULL,"
       "last_name TEXT NOT NULL,"
       "num1 INTEGER NOT NULL,"
-      "num2 INTEGER)"); 
+      "num2 INTEGER)");
+
+      await db.execute("CREATE TABLE IF NOT EXISTS component("
+      "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+      "name TEXT NOT NULL,"
+      "family TEXT NOT NULL,"
+      "quantity INTEGER NOT NULL,"
+      "date Date)"); 
+
+      await db.execute("CREATE TABLE IF NOT EXISTS loans("
+      "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+      "nameMember TEXT NOT NULL,"
+      "nameComponent TEXT NOT NULL,"
+      "dateEmp Date,"
+      "dateReturn Date)"); 
+
+      await db.execute("update components set quantity= ? where name=?"
+      ); 
     });
     
   }
@@ -79,6 +98,11 @@ class MyDatabase {
   newMember(Member newMember) async {
     final db = await database;
     var res = await db?.insert("Member", newMember.toMap());
+    return res;
+  }
+  newComponent(Component newComponent) async {
+    final db = await database;
+    var res = await db?.insert("Component", newComponent.toMap());
     return res;
   }
 
@@ -118,9 +142,34 @@ class MyDatabase {
     }
     else
     {
-      return Member.withoutId("","","","");
+      return Member.withoutId("","",-1,-1);
     }
     
   }
+   Future<Component> getComponent(String name) async {
+    final db = await database;
+    var res = await  db?.query("Component",where: "name = ?", whereArgs: [name]);
+    print("--el get -"+res.toString());
+    if (res!.isNotEmpty) {
+      return Component.fromMap(res.first);
+    }
+    else
+    {
+      return Component.withoutId("","",0,DateTime.parse("DD/MM/YYYY"));
+    }
+    }
+    /*Future<Loans> getLoans(String first_name) async {
+    final db = await database;
+    var res = await  db?.query("Loans",where: "first_name = ?", whereArgs: [first_name]);
+    print("--el get -"+res.toString());
+    if (res!.isNotEmpty) {
+      return Loans.fromMap(res.first);
+    }
+    else
+    {
+      return Loans.withoutId("","",DateTime.parse("DD/MM/YYYY"),DateTime.parse("DD/MM/YYYY"));
+    }
+    
+  }*/
 
 }
