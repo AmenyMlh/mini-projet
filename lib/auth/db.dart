@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:mini_projet/auth/AddFamily.dart';
 import 'package:mini_projet/models/admin.dart';
 import 'package:mini_projet/models/component.dart';
 import 'package:mini_projet/models/family.dart';
@@ -24,7 +25,7 @@ class MyDatabase {
       }
     
     initDB() async {
-    String path = join(getDatabasesPath().toString(), "flutter.db");
+    String path = join(getDatabasesPath().toString(), "projet.db");
     return await openDatabase(path, version: 2, onOpen: (db) async{
       await db.execute("CREATE TABLE IF NOT EXISTS admin ("
           "username EMAIL PRIMARY KEY,"
@@ -54,8 +55,7 @@ class MyDatabase {
 
 
       await db.execute("CREATE TABLE IF NOT EXISTS family("
-      "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-      "name TEXT NOT NULL)"
+      "name TEXTPRIMARY KEY)"
       ); 
 
 
@@ -80,7 +80,7 @@ class MyDatabase {
       "dateEmp Date,"
       "dateReturn Date)"); 
 
-      await db.execute("update components set quantity= ? where name=?"
+      await db.execute("update component set quantity= ? where name=?"
       ); 
     });
     
@@ -105,7 +105,19 @@ class MyDatabase {
     var res = await db?.insert("Component", newComponent.toMap());
     return res;
   }
-
+  newLoans(Loans newLoans) async {
+    final db = await database;
+    var res = await db?.insert("Loans", newLoans.toMap());
+    return res;
+  }
+  Future<List<Map<String, Object?>>?> queryAllFamily() async {
+        final db = await database;
+    var list = await db?.rawQuery("SELECT * FROM Family");
+      return list;
+  }
+  
+  
+  
   Future<Admin> getAdmin(String username) async {
     final db = await database;
     var res = await  db?.query("Admin",where: "username = ?", whereArgs: [username]);
@@ -129,7 +141,7 @@ class MyDatabase {
     }
     else
     {
-      return Family.NameOnly("");
+      return Family("");
     }
     
   }
@@ -158,7 +170,7 @@ class MyDatabase {
       return Component.withoutId("","",0,DateTime.parse("DD/MM/YYYY"));
     }
     }
-    /*Future<Loans> getLoans(String first_name) async {
+    Future<Loans> getLoans(String first_name) async {
     final db = await database;
     var res = await  db?.query("Loans",where: "first_name = ?", whereArgs: [first_name]);
     print("--el get -"+res.toString());
@@ -170,6 +182,6 @@ class MyDatabase {
       return Loans.withoutId("","",DateTime.parse("DD/MM/YYYY"),DateTime.parse("DD/MM/YYYY"));
     }
     
-  }*/
+  }
 
 }

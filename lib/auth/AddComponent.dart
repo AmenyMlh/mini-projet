@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:mini_projet/models/loans.dart';
+import 'package:mini_projet/models/component.dart';
 
 import 'db.dart';
 
-class AddLoans extends StatefulWidget {
-  const AddLoans({ Key? key }) : super(key: key);
+class AddComponent extends StatefulWidget {
+  AddComponent({Key? key}) : super(key: key);
 
   @override
-  _AddLoansState createState() => _AddLoansState();
+  _AddComponentState createState() => _AddComponentState();
 }
 final box = GetStorage();
-final nameMInput = TextEditingController();
-final nameCInput = TextEditingController();
-final datEmpInput = TextEditingController();
-final datRetInput = TextEditingController();
-class _AddLoansState extends State<AddLoans> {
+final nameInput = TextEditingController();
+final famInput = TextEditingController();
+final quantInput = TextEditingController();
+final datInput = TextEditingController();
+
+class _AddComponentState extends State<AddComponent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Add Loans"),
+        title: Text("Add Component"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -39,44 +40,44 @@ class _AddLoansState extends State<AddLoans> {
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
-                controller: nameMInput,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Name Member',
-                    hintText: 'Enter your Firstname'),
-              ),
-            ),
-            Padding(
-              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-                controller: nameCInput,
+                controller: nameInput,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Component Name',
-                    hintText: 'Enter the name of component'),
+                    hintText: 'Enter the name'),
               ),
             ),
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
-                controller:datEmpInput,
+                controller: famInput,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Date emprunt',
-                    hintText: 'Enter the date of emprunt'),
+                    labelText: 'Family Name',
+                    hintText: 'Enter the family name'),
               ),
             ),
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
-                controller: datRetInput,
+                controller:quantInput,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'date Return',
-                    hintText: 'Enter the date of return'),
+                    labelText: 'Component Quantity',
+                    hintText: 'Enter the Quantity'),
+              ),
+            ),
+            Padding(
+              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: TextField(
+                controller: datInput,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Date ',
+                    hintText: 'Enter the date'),
               ),
             ),
             Padding(
@@ -84,7 +85,7 @@ class _AddLoansState extends State<AddLoans> {
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               child:  ElevatedButton(
                 onPressed: () {
-                      MyDatabase.db.newLoans(Loans.withoutId(nameMInput.text, nameCInput.text,  DateTime.parse(datEmpInput.text), DateTime.parse( datRetInput.text)));
+                      MyDatabase.db.newComponent(Component.withoutId(nameInput.text, famInput.text, int.parse(quantInput.text), DateTime.parse(datInput.text)));
                 },
                 child: Text(
                   "Add",
