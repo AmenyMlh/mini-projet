@@ -18,29 +18,31 @@ final box = GetStorage();
 final emailInput = TextEditingController();
 final passwordInput = TextEditingController();
 
-loginVerif() {
+initView(){
+   emailInput.text = "";
+    passwordInput.text ="";
+}
+
+ Future<bool> loginVerif() async{
   print("Clicked");
   bool msg = false;
-   MyDatabase.db.getAdmin(emailInput.text).then((value) => {
+  await MyDatabase.db.getAdmin(emailInput.text).then((value) => {
   print("-verif: "+value.username),
    if (value.username != "" && value.password == passwordInput.text) {
      print("logging in success"),
-     box.write("session", true)
+     msg = true,
      
    }
-   else {
-     box.write("loginError", true)
-     
-   }
+   
  });
-
+return msg;
  }
 
 
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
-    box.write("loginError", false);
+   
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -90,25 +92,23 @@ class _LoginPageState extends State<LoginPage> {
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               child: ElevatedButton(
                 onPressed: () {
-                 //MyDatabase.db.newAdmin(Admin("adminjs@gmail.com","admin12345"));
-                loginVerif();
-
-                box.listen(() {
-                  if (box.read("session")){
-                    Navigator.pushReplacement(
+                 //MyDatabase.db.newAdmin(Admin("adminjs@gmail.com","admin12345"));  
+                  loginVerif().then((value) => {
+                    print(value),
+                    if (value){
+                    initView(),
+                    Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => HomePage()),
-                    );
+                      (Route<dynamic> route) => false
+                    ),
                   }
-                  else if (box.read("loginError") == true) {
-                    Navigator.of(context).restorablePush(_dialogBuilder);
+                  else {
+                    Navigator.of(context).restorablePush(_dialogBuilder),
                   } 
+                  });
                 
-                });
                 },
-                 
-                  
-                
                 child: Text(
                   'Login',
                   style: TextStyle(color: Colors.white, fontSize: 25),

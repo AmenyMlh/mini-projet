@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:mini_projet/auth/AddFamily.dart';
+
 import 'package:mini_projet/models/admin.dart';
 import 'package:mini_projet/models/component.dart';
 import 'package:mini_projet/models/family.dart';
@@ -25,8 +25,14 @@ class MyDatabase {
       }
     
     initDB() async {
-    String path = join(getDatabasesPath().toString(), "projet.db");
+    String path = join(getDatabasesPath().toString(), "projet_flutter_v1.db");
     return await openDatabase(path, version: 2, onOpen: (db) async{
+      await db.execute("CREATE TABLE IF NOT EXISTS component("
+      "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+      "name TEXT NOT NULL UNIQUE,"
+      "family TEXT NOT NULL,"
+      "quantity INTEGER NOT NULL,"
+      "date Date)"); 
       await db.execute("CREATE TABLE IF NOT EXISTS admin ("
           "username EMAIL PRIMARY KEY,"
           "password TEXT"
@@ -55,7 +61,7 @@ class MyDatabase {
 
 
       await db.execute("CREATE TABLE IF NOT EXISTS family("
-      "name TEXTPRIMARY KEY)"
+      "name TEXT PRIMARY KEY)"
       ); 
 
 
@@ -63,25 +69,28 @@ class MyDatabase {
       "id INTEGER PRIMARY KEY AUTOINCREMENT,"
       "first_name TEXT NOT NULL,"
       "last_name TEXT NOT NULL,"
-      "num1 INTEGER NOT NULL,"
-      "num2 INTEGER)");
+      "num1 INTEGER NOT NULL UNIQUE,"
+      "num2 INTEGER UNIQUE)");
 
       await db.execute("CREATE TABLE IF NOT EXISTS component("
       "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-      "name TEXT NOT NULL,"
+      "name TEXT NOT NULL UNIQUE,"
       "family TEXT NOT NULL,"
       "quantity INTEGER NOT NULL,"
-      "date Date)"); 
+      "date Date,"
+      "FOREIGN KEY(family) REFERENCES Family(name))"); 
 
       await db.execute("CREATE TABLE IF NOT EXISTS loans("
-      "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-      "nameMember TEXT NOT NULL,"
-      "nameComponent TEXT NOT NULL,"
-      "dateEmp Date,"
-      "dateReturn Date)"); 
+      "idMember INTEGER,"
+      "idComponent INTEGER ,"
+      "dateEmp Date NOT NULL,"
+      "dateReturn Date NOT NULL,"
+      "returned INTEGER,"
+      "FOREIGN KEY(idMember) REFERENCES Member(id),"
+      "FOREIGN KEY(idComponent) REFERENCES Component(id),"
+      "PRIMARY KEY(idMember,idComponent,dateEmp))"); 
 
-      await db.execute("update component set quantity= ? where name=?"
-      ); 
+      
     });
     
   }
@@ -97,17 +106,19 @@ class MyDatabase {
   }
   newMember(Member newMember) async {
     final db = await database;
-    var res = await db?.insert("Member", newMember.toMap());
+    var res = await db?.insert("Member", newMember.toMapNoId());
     return res;
   }
-  newComponent(Component newComponent) async {
+  newComponent(Component c) async {
+    print("t3adet el date");
+    
     final db = await database;
-    var res = await db?.insert("Component", newComponent.toMap());
+    var res = await db?.insert("Component", c.toMapNoId());
     return res;
   }
   newLoans(Loans newLoans) async {
     final db = await database;
-    var res = await db?.insert("Loans", newLoans.toMap());
+    var res = await db?.insert("Loans", newLoans.toMapWithoutId());
     return res;
   }
   Future<List<Map<String, Object?>>?> queryAllFamily() async {
@@ -115,7 +126,67 @@ class MyDatabase {
     var list = await db?.rawQuery("SELECT * FROM Family");
       return list;
   }
+
+  Future<List<Map<String, Object?>>?> queryAllComponent() async {
+        final db = await database;
+    var list = await db?.rawQuery("SELECT * FROM Component");
+      return list;
+  }
+
+  Future<List<Map<String, Object?>>?> queryAllMemeber() async {
+        final db = await database;
+    var list = await db?.rawQuery("SELECT * FROM Member");
+      return list;
+  }
+
+  Future<List<Map<String, Object?>>?> queryAllLoans() async {
+        final db = await database;
+    var list = await db?.rawQuery("SELECT * FROM Loans");
+      return list;
+  }
+
+
+  modifyFamily(Family f, String newName) async {
+    final db = await database;
+    db?.rawUpdate("update family set name = ? where name = ?",[newName,f.name]);
+  }
   
+   modifyComponent(Component c) async {
+    final db = await database;
+    //db?.rawUpdate("update component set name = ? family = ? quantity = ? date = ? where id = ?",[c.name,c.family,c.quantity,c.date.toString(),id]);
+    db?.update("component", c.toMap(),where: "id = ?", whereArgs: [c.id]);
+  }
+
+  modifyMember(Member c) async {
+    final db = await database;
+    db?.update("member", c.toMap(),where: "id = ?", whereArgs: [c.id]);
+  }
+
+  modifyLoan(Loans l) async {
+    final db = await database;
+    db?.update("member", l.toMapWithoutId(),where: "idMember = ? and idComponent = ? and dateEmp= ?", whereArgs: [l.idMember,l.idComponent,l.DateEmp.toString()]);
+  }
+
+  deleteComponent(int id) async{
+      final db = await database;
+      db?.rawDelete("DELETE FROM component where id = ?",[id]);
+    }
+
+
+  deleteFamily(Family fam) async{
+    final db = await database;
+    db?.rawDelete("DELETE FROM Family where name = ?",[fam.name]);
+  }
+
+  deleteMember(int id) async{
+    final db = await database;
+    db?.rawDelete("DELETE FROM member where id = ?",[id]);
+  }
+
+  deleteLoan(int id) async{
+      final db = await database;
+      db?.rawDelete("DELETE FROM loans where id = ?",[id]);
+    }
   
   
   Future<Admin> getAdmin(String username) async {
@@ -170,18 +241,8 @@ class MyDatabase {
       return Component.withoutId("","",0,DateTime.parse("DD/MM/YYYY"));
     }
     }
-    Future<Loans> getLoans(String first_name) async {
-    final db = await database;
-    var res = await  db?.query("Loans",where: "first_name = ?", whereArgs: [first_name]);
-    print("--el get -"+res.toString());
-    if (res!.isNotEmpty) {
-      return Loans.fromMap(res.first);
-    }
-    else
-    {
-      return Loans.withoutId("","",DateTime.parse("DD/MM/YYYY"),DateTime.parse("DD/MM/YYYY"));
-    }
     
-  }
+    
+  
 
 }

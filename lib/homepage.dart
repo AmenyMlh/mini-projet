@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:mini_projet/auth/AddComponent.dart';
-import 'package:mini_projet/auth/AddFamily.dart';
-import 'package:mini_projet/auth/AddMember.dart';
+import 'package:mini_projet/Components/AddComponent.dart';
+import 'package:mini_projet/Components/AddFamily.dart';
+import 'package:mini_projet/Components/AddLoans.dart';
+import 'package:mini_projet/Components/AddMember.dart';
 
-import 'auth/LoginPage.dart';
+import 'Components/LoginPage.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -45,7 +46,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => AddFamily()));
 
                  },
-                child: Text('Add Family'),
+                child: Text('Manage Families'),
               ),
             ),
            Padding(
@@ -55,7 +56,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) =>AddComponent()));
 
                  },
-                child: Text('Add Component'),
+                child: Text('Manage Components'),
               ),
             ),
             Padding(
@@ -65,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => AddMember()));
 
                  },
-                child: Text('Add Member'),
+                child: Text('Manage Members'),
               ),
             ),
             Padding(
@@ -73,31 +74,12 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: ElevatedButton(
                 onPressed: () { 
-
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => AddLoans()));
                  },
-                child: Text('Edit Component Quantity'),
+                child: Text('Manage Loans'),
               ),
             ),
-            Padding(
-              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: ElevatedButton(
-                onPressed: () { 
-
-                 },
-                child: Text('Add Loans'),
-              ),
-            ),
-            Padding(
-              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: ElevatedButton(
-                onPressed: () { 
-
-                 },
-                child: Text('Edit Loans'),
-              ),
-            ),
+            
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
@@ -113,16 +95,15 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: ElevatedButton(
                 onPressed: () { 
-                  box.write("session", false);
-                  box.listen(() { 
-                    if (box.read("session") == false) {
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => LoginPage()),
+                      (Route<dynamic> route) => false
+
                     );
-                    }
-                  });
-                 },
+                    
+                  },
+                 
                 child: Text('Log Out'),
               ),
             ),

@@ -7,4 +7,10 @@ Map<String, Object?> toMap() => {
   };
   factory Family.fromMap(Map<String, dynamic> json) => 
   Family(json['name']);
+
+  @override
+  String toString() {
+    
+    return name;
+  }
 }
