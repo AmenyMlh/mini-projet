@@ -5,6 +5,7 @@ import 'package:mini_projet/Components/AddComponent.dart';
 import 'package:mini_projet/Components/AddFamily.dart';
 import 'package:mini_projet/Components/AddLoans.dart';
 import 'package:mini_projet/Components/AddMember.dart';
+import 'package:mini_projet/Components/showLoanedComps.dart';
 
 import 'Components/LoginPage.dart';
 
@@ -85,7 +86,7 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: ElevatedButton(
                 onPressed: () { 
-
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ShowLoanedComps()));
                  },
                 child: Text('Show Loaned Components'),
               ),
