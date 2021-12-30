@@ -25,7 +25,7 @@ class MyDatabase {
       }
     
     initDB() async {
-    String path = join(getDatabasesPath().toString(), "projet_flutter_v1.db");
+    String path = join(getDatabasesPath().toString(), "projet_flutter_v1_1.db");
     return await openDatabase(path, version: 2, onOpen: (db) async{
       await db.execute("CREATE TABLE IF NOT EXISTS component("
       "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -84,8 +84,9 @@ class MyDatabase {
       "idMember INTEGER,"
       "idComponent INTEGER ,"
       "dateEmp Date NOT NULL,"
-      "dateReturn Date NOT NULL,"
+      "dateReturn Date ,"
       "returned INTEGER,"
+      "returnCond TEXT,"
       "FOREIGN KEY(idMember) REFERENCES Member(id),"
       "FOREIGN KEY(idComponent) REFERENCES Component(id),"
       "PRIMARY KEY(idMember,idComponent,dateEmp))"); 
@@ -118,7 +119,7 @@ class MyDatabase {
   }
   newLoans(Loans newLoans) async {
     final db = await database;
-    var res = await db?.insert("Loans", newLoans.toMapWithoutId());
+    var res = await db?.rawInsert("insert into loans (idMember,idComponent,DateEmp,returned) values (?,?,?,0)",[newLoans.idMember,newLoans.idComponent,newLoans.DateEmp.toString()]);
     return res;
   }
   Future<List<Map<String, Object?>>?> queryAllFamily() async {
@@ -145,6 +146,13 @@ class MyDatabase {
       return list;
   }
 
+    Future<List<Map<String, Object?>>?> queryAllNotReturnedLoans() async {
+        final db = await database;
+    var list = await db?.rawQuery("SELECT * FROM Loans where returned = 0");
+    print("el list fl base : "+list.toString());
+      return list;
+  }
+
 
   modifyFamily(Family f, String newName) async {
     final db = await database;
@@ -164,7 +172,7 @@ class MyDatabase {
 
   modifyLoan(Loans l) async {
     final db = await database;
-    db?.update("member", l.toMapWithoutId(),where: "idMember = ? and idComponent = ? and dateEmp= ?", whereArgs: [l.idMember,l.idComponent,l.DateEmp.toString()]);
+    db?.update("loans", l.toMapWithoutId(),where: "idMember = ? and idComponent = ? and dateEmp= ?", whereArgs: [l.idMember,l.idComponent,l.DateEmp.toString()]);
   }
 
   deleteComponent(int id) async{
@@ -183,9 +191,9 @@ class MyDatabase {
     db?.rawDelete("DELETE FROM member where id = ?",[id]);
   }
 
-  deleteLoan(int id) async{
+  deleteLoan(Loans l) async{
       final db = await database;
-      db?.rawDelete("DELETE FROM loans where id = ?",[id]);
+      db?.rawDelete("DELETE FROM loans where idMember = ? and idComponent = ? and dateEmp= ?",[l.idMember,l.idComponent,l.DateEmp.toString()]);
     }
   
   
@@ -216,10 +224,10 @@ class MyDatabase {
     }
     
   }
-  Future<Member> getMember(String first_name) async {
+  Future<Member> getMember(int id) async {
     final db = await database;
-    var res = await  db?.query("Member",where: "first_name = ?", whereArgs: [first_name]);
-    print("--el get -"+res.toString());
+    var res = await  db?.query("Member",where: "id = ?", whereArgs: [id]);
+    
     if (res!.isNotEmpty) {
       return Member.fromMap(res.first);
     }
@@ -229,10 +237,10 @@ class MyDatabase {
     }
     
   }
-   Future<Component> getComponent(String name) async {
+   Future<Component> getComponent(int id) async {
     final db = await database;
-    var res = await  db?.query("Component",where: "name = ?", whereArgs: [name]);
-    print("--el get -"+res.toString());
+    var res = await  db?.query("Component",where: "id = ?", whereArgs: [id]);
+    
     if (res!.isNotEmpty) {
       return Component.fromMap(res.first);
     }

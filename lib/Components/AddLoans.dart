@@ -11,11 +11,24 @@ class AddLoans extends StatefulWidget {
   @override
   _AddLoansState createState() => _AddLoansState();
 }
-final box = GetStorage();
-final idMInput = TextEditingController();
-final idCInput = TextEditingController();
-final datEmpInput = TextEditingController();
-final datRetInput = TextEditingController();
+final GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
+var box = GetStorage();
+var idMInput = TextEditingController();
+var idCInput = TextEditingController();
+var datEmpInput = TextEditingController();
+var idMInputEdit = TextEditingController();
+var idCInputEdit = TextEditingController();
+var datEmpInputEdit = TextEditingController();
+var datRetInput = TextEditingController();
+var dateRetourInput = TextEditingController();
+var loanInput = TextEditingController();
+bool returned = false;
+int returnedInput = 0;
+String statusDropdownValue = "Select State";
+String memberDropdownValue = 'Select a member';
+String memberEditDropdownValue = 'Select a member';
+String componentDropdownValue = 'Select a component';
+String componentEditDropdownValue = 'Select a component';
 class _AddLoansState extends State<AddLoans> {
   @override
   Widget build(BuildContext context) {
@@ -36,27 +49,114 @@ class _AddLoansState extends State<AddLoans> {
                 ),
               ),
             ),
-            Padding(
+             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-                controller: idMInput,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Name Member',
-                    hintText: 'Enter your Firstname'),
-              ),
+              child: FutureBuilder(
+      future: MyDatabase.db.queryAllMemeber(),
+      builder: (BuildContext context, AsyncSnapshot<List<Map<String, Object?>>?> snapshot) { 
+          if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                List<DropdownMenuItem<String>>? results = [
+                  DropdownMenuItem(child: Text("Select a member"),value: "Select a member",),
+                ];
+                var item = {};
+                snapshot.data!.forEach((element) {
+                  element.forEach((key, value) { 
+                    item[key] = value;
+                  });
+                  DropdownMenuItem<String> row = DropdownMenuItem(child: Text(item['first_name']+" "+item["last_name"]),value: item['id'].toString(),);
+                  results.add(row);
+                 });
+
+                 print(results.toString());
+
+
+          return Row(children: <Widget>[
+             Text('Member : ', 
+          style: TextStyle
+              (fontSize: 19, 
+              color: Colors.grey)),
+            Text("   "),
+ 
+          DropdownButton<String>(
+            value: memberDropdownValue,
+            icon: Icon(Icons.arrow_drop_down),
+            iconSize: 24,
+            elevation: 16,
+            style: TextStyle(color: Colors.blue, fontSize: 22),
+            underline: Container(
+              height: 2,
+              color: Colors.blue,
+            ),
+            onChanged: (String? data) {
+              setState(() {
+                memberDropdownValue = data.toString();
+              });
+              idMInput.text = memberDropdownValue.toString();
+            },
+            items: results
+          ),
+          ]);      
+     },
+          
+    )
             ),
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-                controller: idCInput,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Component Name',
-                    hintText: 'Enter the name of component'),
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: FutureBuilder(
+      future: MyDatabase.db.queryAllComponent(),
+      builder: (BuildContext context, AsyncSnapshot<List<Map<String, Object?>>?> snapshot) { 
+          if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                List<DropdownMenuItem<String>>? results = [
+                  DropdownMenuItem(child: Text("Select a component"),value: "Select a component",),
+                ];
+                var item = {};
+                snapshot.data!.forEach((element) {
+                  element.forEach((key, value) { 
+                    item[key] = value;
+                  });
+                  DropdownMenuItem<String> row = DropdownMenuItem(child: Text(item['name']),value: item['id'].toString(),);
+                  results.add(row);
+                 });
+
+                 print(results.toString());
+
+
+          return Row(children: <Widget>[
+             Text('Component : ', 
+          style: TextStyle
+              (fontSize: 15, 
+              color: Colors.grey)),
+            Text("   "),
+ 
+          DropdownButton<String>(
+            value: componentDropdownValue,
+            icon: Icon(Icons.arrow_drop_down),
+            iconSize: 24,
+            elevation: 16,
+            style: TextStyle(color: Colors.blue, fontSize: 22),
+            underline: Container(
+              height: 2,
+              color: Colors.blue,
+            ),
+            onChanged: (String? data) {
+              setState(() {
+                componentDropdownValue = data.toString();
+              });
+              idCInput.text = componentDropdownValue.toString();
+              
+            },
+            items: results
+          ),
+          ]);      
+     },
+          
+    )
             ),
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
@@ -69,23 +169,13 @@ class _AddLoansState extends State<AddLoans> {
                     hintText: 'Enter the date of emprunt'),
               ),
             ),
-            Padding(
-              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: TextField(
-                controller: datRetInput,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'date Return',
-                    hintText: 'Enter the date of return'),
-              ),
-            ),
+            
             Padding(
              padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               child:  ElevatedButton(
                 onPressed: () {
-                      MyDatabase.db.newLoans(Loans.withoutId(int.parse(idMInput.text), int.parse(idCInput.text),DateFormat('yyyy-MM-dd').parse(datEmpInput.text), DateFormat('yyyy-MM-dd').parse(datRetInput.text)));
+                      MyDatabase.db.newLoans(Loans.withoutId(int.parse(idMInput.text), int.parse(idCInput.text),DateFormat('yyyy-MM-dd').parse(datEmpInput.text),0));
                 },
                 child: Text(
                   "Add",
@@ -108,15 +198,18 @@ class _AddLoansState extends State<AddLoans> {
                   itemCount: snapshot.data!.length,
                   reverse: false,
                   itemBuilder: (context, index) {
-                    final item = {};
-                   print("!!!!! "+snapshot.data![index].toString());
+                    var item = {};
                    snapshot.data![index].forEach((key, value) { 
                     item[key]=value;
                    });
-                  print("------ el item : "+item.toString());
-                   Loans c = Loans.fromMap(Map.from(item));
+                   print(item.toString()); 
+                   Loans c = Loans.noParams();
+                   if (item['returned'] != 0)
+                   c = Loans.fromMap(Map.from(item));
+                   else 
+                   c = Loans.fromMapNoReturn(Map.from(item));
                    
-                  box.write("loan"+c.idMember.toString()+c.idComponent.toString()+c.DateEmp.toString(),c.toMapWithoutId());
+                   
                  
                     return GestureDetector (child: Container(
                     margin: const EdgeInsets.all(15.0),
@@ -133,8 +226,8 @@ class _AddLoansState extends State<AddLoans> {
                     
                     ],)
                     ),
-                    onLongPress: () => {
-                      Navigator.of(context).restorablePush(_dialogBuilder,arguments: {'"id"':'"'+c.idMember.toString()+'"'})
+                    onLongPress: () async=> {
+                    await showInformationDialog(context,c)
                     },
                     );
                   },
@@ -150,33 +243,208 @@ class _AddLoansState extends State<AddLoans> {
 
     
   }
-  static Route<Object?> _dialogBuilder(BuildContext context, Object? arguments) {
-      //Family f = Family.fromMap(jsonDecode(arguments.toString())); 
-      // EditNameInput.text = f.name;
-      
-  return DialogRoute<void>(
-    context: context,
-    builder: (BuildContext context) =>  AlertDialog(title: Text("Modify / Delete ?"),content: 
-    Column(children: [
-     Padding(
-            //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            child: TextField(
-              
-             // controller: EditNameInput,
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Name',
-                  hintText: 'Enter the name'),
+  
+Future<void> showInformationDialog(BuildContext context, Loans l) async {
+  
+idMInputEdit.text = l.idMember.toString();
+idCInputEdit.text = l.idComponent.toString();
+datEmpInputEdit.text = l.DateEmp.toString().substring(0,10);
+memberEditDropdownValue = l.idMember.toString();
+componentEditDropdownValue = l.idComponent.toString();
+if (l.returned == 1) {
+  returned = true;
+  returnedInput = 1;
+  dateRetourInput.text = l.DateReturn.toString().substring(0,10);
+  statusDropdownValue = l.returnCond.toString();
+}
+else {
+  returned = false;
+  returnedInput = 0;
+  dateRetourInput.text ="";
+  statusDropdownValue = "Select State";
+  }
+    return await showDialog(
+        context: context,
+        builder: (context) {
+          bool? isChecked = false;
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              content: Form(
+                  key: _formKey1,
+                  child: SingleChildScrollView(
+                                      child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                       SingleChildScrollView(
+          child: Column(children: [
+             Padding(
+              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: FutureBuilder(
+      future: MyDatabase.db.queryAllMemeber(),
+      builder: (BuildContext context, AsyncSnapshot<List<Map<String, Object?>>?> snapshot) { 
+          if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                }
+                List<DropdownMenuItem<String>>? results = [
+                    DropdownMenuItem(child: Text("Select a member"),value: "Select a member",),
+                ];
+                var item = {};
+                snapshot.data!.forEach((element) {
+                    element.forEach((key, value) { 
+                      item[key] = value;
+                    });
+                    DropdownMenuItem<String> row = DropdownMenuItem(child: Text(item['first_name']+" "+item["last_name"]),value: item['id'].toString(),);
+                    results.add(row);
+                 });
+
+                 print(results.toString());
+
+
+          return Row(children: <Widget>[
+             
+ 
+          DropdownButton<String>(
+            value: memberEditDropdownValue,
+            icon: Icon(Icons.arrow_drop_down),
+            iconSize: 24,
+            elevation: 16,
+            style: TextStyle(color: Colors.blue, fontSize: 19),
+            underline: Container(
+              height: 2,
+              color: Colors.blue,
             ),
-          ), 
+            onChanged: (String? data) {
+              setState(() {
+                memberEditDropdownValue = data.toString();
+              });
+              idMInputEdit.text = memberEditDropdownValue.toString();
+            },
+            items: results
+          ),
+          ]);      
+     },
+          
+    )
+            ),
+            Padding(
+              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: FutureBuilder(
+      future: MyDatabase.db.queryAllComponent(),
+      builder: (BuildContext context, AsyncSnapshot<List<Map<String, Object?>>?> snapshot) { 
+          if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                }
+                List<DropdownMenuItem<String>>? results = [
+                    DropdownMenuItem(child: Text("Select a component"),value: "Select a component",),
+                ];
+                var item = {};
+                snapshot.data!.forEach((element) {
+                    element.forEach((key, value) { 
+                      item[key] = value;
+                    });
+                    DropdownMenuItem<String> row = DropdownMenuItem(child: Text(item['name']),value: item['id'].toString(),);
+                    results.add(row);
+                 });
+
+                 print(results.toString());
+
+
+          return Row(children: <Widget>[
+             
+ 
+          DropdownButton<String>(
+            value: componentEditDropdownValue,
+            icon: Icon(Icons.arrow_drop_down),
+            iconSize: 24,
+            elevation: 16,
+            style: TextStyle(color: Colors.blue, fontSize: 19),
+            underline: Container(
+              height: 2,
+              color: Colors.blue,
+            ),
+            onChanged: (String? data) {
+              setState(() {
+                componentDropdownValue = data.toString();
+              });
+              idCInputEdit.text = componentEditDropdownValue.toString();
+              
+            },
+            items: results
+          ),
+          ]);      
+     },
+          
+    )
+            ),
+            Padding(
+              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: TextField(
+                controller:datEmpInputEdit,
+                decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Date emprunt',
+                      hintText: 'Enter the date of emprunt'),
+              ),
+            ),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Row(children: [
+            Text('Returned : '),
+            Checkbox(value: returned, onChanged: (value) => {
+            setState(() {
+              returned = value!;
+              if (returned) returnedInput = 1;
+              else returnedInput = 0;
+            })
+          }),
+          ],)),
+          Padding(
+              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: DropdownButton<String>(
+      value: statusDropdownValue,
+      icon: const Icon(Icons.arrow_drop_down),
+      elevation: 16,
+      style: const TextStyle(color: Colors.blue,fontSize: 19),
+      underline: Container(
+        height: 2,
+        color: Colors.blue,
+      ),
+      onChanged: returned ? (String? newValue) {
+        setState(() {
+          statusDropdownValue = newValue!;
+        });
+      } : null,
+      items: <String>['Select State','Safe', 'Damaged', 'Hardly Damaged']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    )
+            ),
+            Padding(
+              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: TextField(
+                enabled: returned,
+                controller:dateRetourInput,
+                decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Date emprunt',
+                      hintText: 'Enter the date of emprunt'),
+              ),
+            ),
       Padding(
             padding: const EdgeInsets.only(
                 left: 15.0, right: 15.0, top: 15, bottom: 0),
             child: ElevatedButton(
               onPressed: () {
                 print("modify pressed");
-               // MyDatabase.db.modifyFamily(f, EditNameInput.text);
+               MyDatabase.db.modifyLoan(Loans(int.parse(idMInputEdit.text),int.parse(idCInputEdit.text),DateFormat('yyyy-MM-dd').parse(datEmpInputEdit.text),DateFormat('yyyy-MM-dd').parse(dateRetourInput.text),returnedInput,statusDropdownValue));
               },
               child: Text(
                 "Modify",
@@ -190,7 +458,7 @@ class _AddLoansState extends State<AddLoans> {
             child: ElevatedButton(
               onPressed: () async {
                 print("delete pressed");
-               //MyDatabase.db.deleteFamily(Family(EditNameInput.text));
+               MyDatabase.db.deleteLoan(Loans.withoutId(int.parse(idMInputEdit.text),int.parse(idCInputEdit.text),DateFormat('yyyy-MM-dd').parse(datEmpInputEdit.text),0));
               },
               child: Text(
                 "Delete",
@@ -198,8 +466,25 @@ class _AddLoansState extends State<AddLoans> {
               ),
             ),
           ),
-    ],))
-  );
-}
-
+      
+      ],),
+                        
+                       )],
+              ),
+                  )),
+              title: Text('Modify / Delete ?'),
+              actions: <Widget>[
+                InkWell(
+                  child: Text('Close   '),
+                  onTap: () {
+                    
+                      Navigator.of(context).pop();
+                    
+                  },
+                ),
+              ],
+            );
+          });
+        });
+  }
 }

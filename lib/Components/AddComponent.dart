@@ -17,6 +17,7 @@ class AddComponent extends StatefulWidget {
 
  String dropdownValue = 'Select a family';
  String editDropdownValue = 'Select a family';
+final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 final box = GetStorage();
 final nameInput = TextEditingController();
 final famInput = TextEditingController();
@@ -186,8 +187,9 @@ class _AddComponentState extends State<AddComponent> {
                       Text(c.name.toString() ,style: TextStyle(color: Colors.black, fontSize: 25))
                     ],)
                     ),
-                    onLongPress: () => {
-                      Navigator.of(context).restorablePush(_dialogBuilder,arguments: {'"id"':'"'+c.id.toString()+'"'})
+                    onLongPress:  () async => {
+                     // Navigator.of(context).restorablePush(_dialogBuilder,arguments: {'"id"':'"'+c.id.toString()+'"'})
+                      await showInformationDialog(context,c)
                     },
                     );
                   },
@@ -201,26 +203,24 @@ class _AddComponentState extends State<AddComponent> {
     );
   }
   
-     static Route<Object?> _dialogBuilder(BuildContext context, Object? arguments) {
-      //Family f = Family.fromMap(jsonDecode(arguments.toString())); 
-     //  EditNameInput.text = f.name;
-     var params = jsonDecode(arguments.toString());
-     Component c = Component.noParams();
-     c.id = int.parse(params["id"]);
-     print("---------------------   "+box.read(c.id.toString()).toString());
-     c = Component.fromMap(box.read(c.id.toString()));
-     print("family name after long click: "+c.family.toString());
-     editName.text = c.name.toString();
-     editQuant.text = c.quantity.toString();
-     editDate.text = c.date.toString().substring(0,10);
-     editFamName.text = c.family.toString();
-
-     _AddComponentState? compState = context.findAncestorStateOfType<_AddComponentState>();
-    editDropdownValue = c.family.toString();
-  return DialogRoute<void>(
-    context: context,
-    builder: (BuildContext context) =>  AlertDialog(title: Text("Modify / Delete ?"),content: 
-    SingleChildScrollView(
+Future<void> showInformationDialog(BuildContext context, Component c) async {
+  editName.text = c.name.toString();
+  editQuant.text = c.quantity.toString();
+  editDropdownValue = c.family.toString();
+  editDate.text = c.date.toString().substring(0,10);
+  editFamName.text = c.family.toString();
+    return await showDialog(
+        context: context,
+        builder: (context) {
+          bool? isChecked = false;
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              content: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                     SingleChildScrollView(
           child: Column(children: [
        Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
@@ -273,11 +273,12 @@ class _AddComponentState extends State<AddComponent> {
               color: Colors.blue,
             ),
             onChanged: (String? data) {
-              compState?.setState(() {
+              setState(() {
                 editDropdownValue = data.toString();
               });
               editFamName.text = data.toString();
               box.write('famSelected' , data.toString());
+              print("----- el onchange mt3 el dialog : value : "+editFamName.text.toString());
             },
             items: results
           ),
@@ -285,13 +286,6 @@ class _AddComponentState extends State<AddComponent> {
      },
           
     ),
-               /* TextField(
-                controller: editFamName,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Family Name',
-                    hintText: 'Enter the family name'),
-              ), */
             ),
              Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
@@ -345,7 +339,22 @@ class _AddComponentState extends State<AddComponent> {
               ),
             ),
       ],),
-    ))
-  );
-}
+                      
+                     )],
+              )),
+              title: Text('Modify / Delete ?'),
+              actions: <Widget>[
+                InkWell(
+                  child: Text('Close   '),
+                  onTap: () {
+                    
+                      Navigator.of(context).pop();
+                    
+                  },
+                ),
+              ],
+            );
+          });
+        });
+  }
 }
