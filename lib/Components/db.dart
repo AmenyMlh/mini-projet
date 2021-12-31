@@ -146,10 +146,27 @@ class MyDatabase {
       return list;
   }
 
-    Future<List<Map<String, Object?>>?> queryAllNotReturnedLoans() async {
+    Future<List<Map<String, String>>?> queryAllNotReturnedLoans() async {
         final db = await database;
-    var list = await db?.rawQuery("SELECT * FROM Loans where returned = 0");
-    print("el list fl base : "+list.toString());
+        List<Map<String, String>>? list = [];
+    var listLoans = await db?.rawQuery("SELECT * FROM Loans where returned = 0");
+    print("!!!!!!!!!!!!!!");
+      if (listLoans == null || listLoans.isEmpty){
+        list.add({'msg':'No components found!'});
+        
+      }
+      else {
+        for (var element in listLoans) { 
+          var member = Member.noParams();
+          var comp = Component.noParams();
+         await getMember(element['idMember'] as int).then((value) => member = value);
+         await getComponent(element['idComponent'] as int).then((value) => comp = value);
+         list.add({'compName':comp.name.toString(),
+                  'memberName': member.first_name.toString() + " " + member.last_name.toString(),
+                  'memberPhone':member.num1.toString() + " | " + member.num2.toString()
+         });
+      }
+      }
       return list;
   }
 

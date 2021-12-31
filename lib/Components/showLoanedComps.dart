@@ -34,7 +34,7 @@ class _ShowLoanedCompsState extends State<ShowLoanedComps> {
             child: FutureBuilder(
               future: MyDatabase.db.queryAllNotReturnedLoans(),
               builder: (BuildContext context,
-                  AsyncSnapshot<List<Map<String, Object?>>?> snapshot) {
+                  AsyncSnapshot<List<Map<String, String>>?> snapshot) {
                 if (!snapshot.hasData) {
                   return Center(child: CircularProgressIndicator());
                 }
@@ -48,26 +48,21 @@ class _ShowLoanedCompsState extends State<ShowLoanedComps> {
                    snapshot.data![index].forEach((key, value) { 
                     item[key]=value;
                    });
-                   print("-----------------------------------------");
-                   print(item.toString()); 
-                   Loans c = Loans.noParams();
                    
-                   c = Loans.fromMapNoReturn(Map.from(item));
-                   
-                   
-                 
-                    return GestureDetector (child: Container(
-                    margin: const EdgeInsets.all(15.0),
-                    padding: const EdgeInsets.all(3.0),
+                                     
+                    if (item['compName'] == Null){
+                      print('&&&&&- '+item['compName'].toString());
+                      return GestureDetector (child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.blue)
                     ),
                     child: Row(children: [
-                      Text(c.idMember.toString() ,style: TextStyle(color: Colors.black, fontSize: 20)),
-                      Text(" - " ,style: TextStyle(color: Colors.black, fontSize: 20)),
-                      Text(c.DateEmp.toString().substring(0,10) ,style: TextStyle(color: Colors.black, fontSize: 20)),
-                      Text(" - " ,style: TextStyle(color: Colors.black, fontSize: 20)),
-                     
+                      Flexible(child: Text(item['compName'].toString()+" - " ,style: TextStyle(color: Colors.black, fontSize: 20))),
+                      Flexible(child: Text(item['memberName'].toString()+" - " ,style: TextStyle(color: Colors.black, fontSize: 20))),
+                      Flexible(child: Text(item['memberPhone'].toString() ,style: TextStyle(color: Colors.black, fontSize: 15))),
+                      
                     
                     ],)
                     ),
@@ -75,6 +70,21 @@ class _ShowLoanedCompsState extends State<ShowLoanedComps> {
                     
                     },
                     );
+                    }
+                    else {
+                      return GestureDetector (child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blue)
+                    ),
+                    child: Text(item['msg'].toString(),style: TextStyle(color: Colors.black, fontSize: 25))
+                    ),
+                    onLongPress: () async=> {
+                    
+                    },
+                    );
+                    }
                   },
                 );
               },

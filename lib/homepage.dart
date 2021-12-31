@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
 
   final box = GetStorage();
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +30,11 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 60.0),
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Welcome: "+box.read("user").toString(),style:TextStyle(color: Colors.black, fontSize: 20),),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 0),
               child: Center(
                 child: Container(
                     width: 200,

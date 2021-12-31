@@ -5,49 +5,38 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:mini_projet/Components/SignupPage.dart';
+import 'package:mini_projet/Components/LoginPage.dart';
 import 'package:mini_projet/models/admin.dart';
 
 import '../homepage.dart';
 import 'db.dart';
 
-class LoginPage extends StatefulWidget {
+class SignupPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _SignupPageState createState() => _SignupPageState();
 }
 final box = GetStorage();
 final emailInput = TextEditingController();
 final passwordInput = TextEditingController();
+final passwordConfirmInput = TextEditingController();
 
 initView(){
    emailInput.text = "";
     passwordInput.text ="";
 }
 
- Future<bool> loginVerif() async{
-  print("Clicked");
-  bool msg = false;
-  await MyDatabase.db.getAdmin(emailInput.text).then((value) => {
-  print("-verif: "+value.username),
-   if (value.username != "" && value.password == passwordInput.text) {
-     print("logging in success"),
-     msg = true,
-     
-   }
+ 
    
- });
-return msg;
- }
+ 
 
-
-class _LoginPageState extends State<LoginPage> {
+class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Login Page"),
+        title: Text("Signup Page"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -58,14 +47,11 @@ class _LoginPageState extends State<LoginPage> {
                 child: Container(
                     width: 200,
                     height: 150,
-                    /*decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(50.0)),*/
+                    
                     child: Image.asset('assets/images/logo.jpg')),
               ),
             ),
             Padding(
-              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
                 controller: emailInput,
@@ -89,32 +75,33 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             Padding(
+              padding: const EdgeInsets.only(
+                  left: 15.0, right: 15.0, top: 15, bottom: 0),
+              //padding: EdgeInsets.symmetric(horizontal: 15),
+              child: TextField(
+                controller: passwordConfirmInput,
+                obscureText: true,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Confirm Password',
+                    hintText: 'Re-type your Password'),
+              ),
+            ),
+            Padding(
              padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               child: ElevatedButton(
                 onPressed: () {
-                 //MyDatabase.db.newAdmin(Admin("adminjs@gmail.com","admin12345"));  
-                  loginVerif().then((value) => {
-                    print(value),
-                    if (value){
-                      box.write("user", emailInput.text.toString()),
-                    initView(),
-                    
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                      (Route<dynamic> route) => false
-                    ),
-                    
-                  }
-                  else {
-                    Navigator.of(context).restorablePush(_dialogBuilder),
-                  } 
-                  });
+                 if(passwordInput.text != passwordConfirmInput.text)
+                  Navigator.of(context).restorablePush(_dialogBuilderFail);
+                 else{
+                   MyDatabase.db.newAdmin(Admin(emailInput.text.toString(),passwordInput.text.toString()));
+                   Navigator.of(context).restorablePush(_dialogBuilderOK);
+                 }
                 
                 },
                 child: Text(
-                  'Login',
+                  'Signup',
                   style: TextStyle(color: Colors.white, fontSize: 25),
                 ),
               ),
@@ -124,14 +111,15 @@ class _LoginPageState extends State<LoginPage> {
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               child: ElevatedButton(
                 onPressed: () {
-                 Navigator.push(context, MaterialPageRoute(builder: (context) => SignupPage()));
+                 Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
                 },
                 child: Text(
-                  'Signup',
+                  'Login',
                   style: TextStyle(color: Colors.white, fontSize: 25),
                 ),
               ),
             ),
+           
             SizedBox(
               height: 130,
             ),
@@ -141,10 +129,16 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-  static Route<Object?> _dialogBuilder(BuildContext context, Object? arguments) {
+  static Route<Object?> _dialogBuilderFail(BuildContext context, Object? arguments) {
   return DialogRoute<void>(
     context: context,
     builder: (BuildContext context) => const AlertDialog(title: Text("Error"),content: Text("Check your credentials")),
+  );
+}
+ static Route<Object?> _dialogBuilderOK(BuildContext context, Object? arguments) {
+  return DialogRoute<void>(
+    context: context,
+    builder: (BuildContext context) => const AlertDialog(title: Text("Success"),content: Text("Welcome! Head to login")),
   );
 }
 }
