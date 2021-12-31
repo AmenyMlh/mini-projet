@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mini_projet/Components/SearchComp.dart';
 import 'package:mini_projet/Components/db.dart';
 import 'package:mini_projet/homepage.dart';
 import 'Components/LoginPage.dart';
@@ -30,6 +31,6 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
 
-      home: HomePage(),);
+      home: LoginPage(),);
   }
 }

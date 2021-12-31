@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mini_projet/Components/Dropdown.dart';
+import 'package:mini_projet/Components/SearchComp.dart';
 
 import 'package:mini_projet/models/component.dart';
 import 'package:intl/intl.dart';
@@ -36,12 +37,29 @@ class _AddComponentState extends State<AddComponent> {
      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text("Manage Components"),
+
       ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 60.0),
+             padding: const EdgeInsets.only(
+                  left: 15.0, right: 15.0, top: 15, bottom: 0),
+              child:  ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SearchComp()));
+                  },
+                child: Row(children: [
+                  Text(
+                  "Search",
+                 style: TextStyle(color: Colors.white, fontSize: 25),
+                ),
+                Icon(Icons.search),
+                ],)
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.only(top: 0),
               child: Center(
                 child: Container(
                     width: 200,
@@ -182,9 +200,9 @@ class _AddComponentState extends State<AddComponent> {
                       border: Border.all(color: Colors.blue)
                     ),
                     child: Row(children: [
-                      Text(c.id.toString() ,style: TextStyle(color: Colors.black, fontSize: 25)),
+                      Text(c.name.toString() ,style: TextStyle(color: Colors.black, fontSize: 25)),
                       Text(" - " ,style: TextStyle(color: Colors.black, fontSize: 25)),
-                      Text(c.name.toString() ,style: TextStyle(color: Colors.black, fontSize: 25))
+                      Text(c.quantity.toString() ,style: TextStyle(color: Colors.black, fontSize: 25))
                     ],)
                     ),
                     onLongPress:  () async => {
